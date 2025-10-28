@@ -1,10 +1,24 @@
 ﻿import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
 import { HealthModule } from './health/health.module';
+import { DatabaseModule } from './database/database.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from './users/user.schema';
+import { Tag, TagSchema } from './tags/tag.schema';
+import { Document as Doc, DocumentSchema } from './documents/document.schema';
+import { DocumentTag, DocumentTagSchema } from './documents/document-tag.schema';
+
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/ocr_ingestion'),
+    ConfigModule.forRoot(),
+    DatabaseModule,
     HealthModule,
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Tag.name, schema: TagSchema },
+      { name: Doc.name, schema: DocumentSchema },
+      { name: DocumentTag.name, schema: DocumentTagSchema },
+    ]),
   ],
 })
 export class AppModule {}

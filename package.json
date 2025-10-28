@@ -21,9 +21,9 @@
     "url": "https://github.com/TAPISH-BALODI/ocr-ingestion/issues"
   },
   "homepage": "https://github.com/TAPISH-BALODI/ocr-ingestion#readme",
-  "type": "module",
   "dependencies": {
     "@nestjs/common": "^11.1.8",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.8",
     "@nestjs/mongoose": "^11.0.3",
     "@nestjs/platform-express": "^11.1.8",

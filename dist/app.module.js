@@ -8,16 +8,27 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const mongoose_1 = require("@nestjs/mongoose");
 const health_module_1 = require("./health/health.module");
+const database_module_1 = require("./database/database.module");
+const mongoose_1 = require("@nestjs/mongoose");
+const user_schema_1 = require("./users/user.schema");
+const tag_schema_1 = require("./tags/tag.schema");
+const document_schema_1 = require("./documents/document.schema");
+const document_tag_schema_1 = require("./documents/document-tag.schema");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/ocr_ingestion'),
+            database_module_1.DatabaseModule,
             health_module_1.HealthModule,
+            mongoose_1.MongooseModule.forFeature([
+                { name: user_schema_1.User.name, schema: user_schema_1.UserSchema },
+                { name: tag_schema_1.Tag.name, schema: tag_schema_1.TagSchema },
+                { name: document_schema_1.Document.name, schema: document_schema_1.DocumentSchema },
+                { name: document_tag_schema_1.DocumentTag.name, schema: document_tag_schema_1.DocumentTagSchema },
+            ]),
         ],
     })
 ], AppModule);
