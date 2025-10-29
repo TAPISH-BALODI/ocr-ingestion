@@ -7,6 +7,7 @@ import { User, UserSchema } from './users/user.schema';
 import { Tag, TagSchema } from './tags/tag.schema';
 import { Document as Doc, DocumentSchema } from './documents/document.schema';
 import { DocumentTag, DocumentTagSchema } from './documents/document-tag.schema';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { DocumentTag, DocumentTagSchema } from './documents/document-tag.schema'
       { name: Tag.name, schema: TagSchema },
       { name: Doc.name, schema: DocumentSchema },
       { name: DocumentTag.name, schema: DocumentTagSchema },
-    ]),
+    ]), 
+    AuthModule,
   ],
 })
 export class AppModule {}
