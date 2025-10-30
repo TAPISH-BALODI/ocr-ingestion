@@ -9,7 +9,7 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, { logger: ['log', 'error', 'warn', 'debug'] });
     app.setGlobalPrefix('v1');
     app.useGlobalGuards(app.get(jwt_auth_guard_1.JwtAuthGuard), app.get(tenant_scope_guard_1.TenantScopeGuard), app.get(roles_guard_1.RolesGuard));
-    await app.listen(process.env.PORT || 3000);
+    await app.listen(process.env.PORT || 3031);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

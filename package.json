@@ -8,7 +8,8 @@
     "build": "rimraf dist && tsc -p tsconfig.json",
     "start": "node dist/main.js",
     "lint": "eslint  src/**/*.ts",
-    "test": "cross-env NODE_ENV=test jest --runInBand"
+    "test": "cross-env NODE_ENV=test jest --runInBand",
+    "seed": "ts-node --transpile-only scripts/seed.ts"
   },
   "repository": {
     "type": "git",
@@ -46,6 +47,7 @@
     "cross-env": "^10.1.0",
     "eslint": "^9.38.0",
     "jest": "^30.2.0",
+    "mongodb-memory-server": "^10.2.3",
     "rimraf": "^6.0.1",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.5",
