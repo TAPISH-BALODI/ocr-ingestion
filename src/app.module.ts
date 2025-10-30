@@ -10,6 +10,9 @@ import { Document as Doc, DocumentSchema } from './documents/document.schema';
 import { DocumentTag, DocumentTagSchema } from './documents/document-tag.schema';
 import { AuthModule } from './auth/auth.module';
 import { DocumentsModule } from './documents/documents.module';
+import { ActionsModule } from './actions/actions.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
+import { MetricsModule } from './metrics/metrics.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { TenantScopeGuard } from './auth/tenant-scope.guard';
@@ -27,6 +30,9 @@ import { TenantScopeGuard } from './auth/tenant-scope.guard';
     ]), 
     AuthModule,
     DocumentsModule,
+    ActionsModule,
+    WebhooksModule,
+    MetricsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

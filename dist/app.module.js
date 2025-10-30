@@ -19,6 +19,9 @@ const document_schema_1 = require("./documents/document.schema");
 const document_tag_schema_1 = require("./documents/document-tag.schema");
 const auth_module_1 = require("./auth/auth.module");
 const documents_module_1 = require("./documents/documents.module");
+const actions_module_1 = require("./actions/actions.module");
+const webhooks_module_1 = require("./webhooks/webhooks.module");
+const metrics_module_1 = require("./metrics/metrics.module");
 const jwt_auth_guard_1 = require("./common/guards/jwt-auth.guard");
 const roles_guard_1 = require("./auth/roles.guard");
 const tenant_scope_guard_1 = require("./auth/tenant-scope.guard");
@@ -39,6 +42,9 @@ exports.AppModule = AppModule = __decorate([
             ]),
             auth_module_1.AuthModule,
             documents_module_1.DocumentsModule,
+            actions_module_1.ActionsModule,
+            webhooks_module_1.WebhooksModule,
+            metrics_module_1.MetricsModule,
         ],
         providers: [
             { provide: core_1.APP_GUARD, useClass: jwt_auth_guard_1.JwtAuthGuard },
