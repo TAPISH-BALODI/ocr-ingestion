@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, BadRequestException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Document as Doc } from '../documents/document.schema';
@@ -10,6 +11,8 @@ import { AuditService } from '../audit/audit.service';
 
 type Scope = { type: 'folder'; name: string } | { type: 'files'; ids: string[] };
 
+@ApiTags('Actions')
+@ApiBearerAuth()
 @Controller('v1/actions')
 export class ActionsController {
   constructor(
@@ -46,9 +49,9 @@ export class ActionsController {
     @TenantUserId() tenantUserId: string,
     @Body() body: { scope: Scope; messages: { role: string; content: string }[]; actions: ('make_document'|'make_csv')[] },
   ) {
-    // Rule: scope must be either folder OR files, not both
+    // Rule: scope must be either folder OR files, not both (enforced by TypeScript union type)
     if (!body.scope || !body.actions?.length) {
-      return { error: 'scope and actions are required' };
+      throw new BadRequestException('scope and actions are required');
     }
     const userId = new Types.ObjectId(tenantUserId);
     const docs = await this.collectContext(userId, body.scope);

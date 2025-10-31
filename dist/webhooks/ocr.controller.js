@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OcrController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const task_schema_1 = require("../tasks/task.schema");
@@ -74,6 +75,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OcrController.prototype, "handle", null);
 exports.OcrController = OcrController = __decorate([
+    (0, swagger_1.ApiTags)('Webhooks'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('v1/webhooks'),
     __param(0, (0, mongoose_1.InjectModel)(task_schema_1.Task.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,

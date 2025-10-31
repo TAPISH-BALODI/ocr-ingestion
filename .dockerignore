@@ -1,9 +1,16 @@
 node_modules
-.env
 dist
+.git
+.gitignore
+README.md
+.env
+.env.local
+test
 *.log
 .DS_Store
 coverage
 .vscode
 .idea
 *.tsbuildinfo
+docker-compose.yml
+

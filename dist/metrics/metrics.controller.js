@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetricsController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const document_schema_1 = require("../documents/document.schema");
@@ -58,6 +59,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MetricsController.prototype, "get", null);
 exports.MetricsController = MetricsController = __decorate([
+    (0, swagger_1.ApiTags)('Metrics'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('v1/metrics'),
     __param(0, (0, mongoose_1.InjectModel)(document_schema_1.Document.name)),
     __param(1, (0, mongoose_1.InjectModel)(tag_schema_1.Tag.name)),

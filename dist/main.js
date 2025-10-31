@@ -2,14 +2,23 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
-const jwt_auth_guard_1 = require("./common/guards/jwt-auth.guard");
-const tenant_scope_guard_1 = require("./auth/tenant-scope.guard");
-const roles_guard_1 = require("./auth/roles.guard");
+const swagger_1 = require("@nestjs/swagger");
+const common_1 = require("@nestjs/common");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, { logger: ['log', 'error', 'warn', 'debug'] });
     app.setGlobalPrefix('v1');
-    app.useGlobalGuards(app.get(jwt_auth_guard_1.JwtAuthGuard), app.get(tenant_scope_guard_1.TenantScopeGuard), app.get(roles_guard_1.RolesGuard));
+    app.useGlobalPipes(new common_1.ValidationPipe({ transform: true, whitelist: true }));
+    const config = new swagger_1.DocumentBuilder()
+        .setTitle('OCR Ingestion API')
+        .setDescription('Document management, OCR webhooks, scoped actions, RBAC, and metrics')
+        .setVersion('1.0')
+        .addBearerAuth()
+        .build();
+    const document = swagger_1.SwaggerModule.createDocument(app, config);
+    swagger_1.SwaggerModule.setup('api', app, document);
     await app.listen(process.env.PORT || 3031);
+    console.log(`Application is running on: http://localhost:${process.env.PORT || 3031}`);
+    console.log(`Swagger docs available at: http://localhost:${process.env.PORT || 3031}/api`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

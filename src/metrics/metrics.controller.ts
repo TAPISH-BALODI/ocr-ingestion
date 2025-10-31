@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Document as Doc } from '../documents/document.schema';
@@ -8,6 +9,8 @@ import { Usage } from '../actions/usage.schema';
 import { Task } from '../tasks/task.schema';
 import { TenantUserId } from '../auth/decorators';
 
+@ApiTags('Metrics')
+@ApiBearerAuth()
 @Controller('v1/metrics')
 export class MetricsController {
   constructor(

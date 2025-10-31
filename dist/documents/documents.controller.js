@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DocumentsController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const documents_service_1 = require("./documents.service");
 const create_document_dto_1 = require("./dto/create-document.dto");
 const decorators_1 = require("../auth/decorators");
@@ -47,6 +48,7 @@ let DocumentsController = class DocumentsController {
 exports.DocumentsController = DocumentsController;
 __decorate([
     (0, common_1.Post)('v1/docs'),
+    (0, swagger_1.ApiOperation)({ summary: 'Upload a document with primary and optional secondary tags' }),
     (0, decorators_1.Roles)(auth_types_1.Role.USER, auth_types_1.Role.ADMIN),
     __param(0, (0, decorators_2.TenantUserId)()),
     __param(1, (0, common_1.Body)()),
@@ -84,6 +86,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], DocumentsController.prototype, "search", null);
 exports.DocumentsController = DocumentsController = __decorate([
+    (0, swagger_1.ApiTags)('Documents'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [documents_service_1.DocumentsService, audit_service_1.AuditService])
 ], DocumentsController);

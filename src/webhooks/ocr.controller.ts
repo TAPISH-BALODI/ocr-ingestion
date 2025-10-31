@@ -1,4 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Task } from '../tasks/task.schema';
@@ -20,6 +21,8 @@ function extractUnsubscribe(text: string): { channel: string; target: string } |
   return null;
 }
 
+@ApiTags('Webhooks')
+@ApiBearerAuth()
 @Controller('v1/webhooks')
 export class OcrController {
   constructor(

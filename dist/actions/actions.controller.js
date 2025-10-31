@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ActionsController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const document_schema_1 = require("../documents/document.schema");
@@ -52,7 +53,7 @@ let ActionsController = class ActionsController {
     }
     async run(tenantUserId, body) {
         if (!body.scope || !body.actions?.length) {
-            return { error: 'scope and actions are required' };
+            throw new common_1.BadRequestException('scope and actions are required');
         }
         const userId = new mongoose_2.Types.ObjectId(tenantUserId);
         const docs = await this.collectContext(userId, body.scope);
@@ -98,6 +99,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ActionsController.prototype, "usageMonth", null);
 exports.ActionsController = ActionsController = __decorate([
+    (0, swagger_1.ApiTags)('Actions'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('v1/actions'),
     __param(0, (0, mongoose_1.InjectModel)(document_schema_1.Document.name)),
     __param(1, (0, mongoose_1.InjectModel)(document_tag_schema_1.DocumentTag.name)),
