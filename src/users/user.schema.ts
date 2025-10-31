@@ -10,7 +10,6 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
-UserSchema.index({ email: 1 }, { unique: true });
+// Note: unique: true on email prop automatically creates a unique index
 
 
