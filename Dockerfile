@@ -15,10 +15,10 @@ WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./package.json
-ENV PORT=3031
+ENV PORT=3030
 ENV MONGO_URI=mongodb://mongo:27017/ocr_ingestion
 ENV JWT_SECRET=dev-secret-key
-EXPOSE 3031
+EXPOSE 3030
 CMD ["node","dist/main.js"]
 
 
