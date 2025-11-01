@@ -10,7 +10,8 @@
     "lint": "eslint  src/**/*.ts",
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "seed": "ts-node --transpile-only scripts/seed.ts",
-    "export-openapi": "ts-node --transpile-only scripts/export-openapi.ts"
+    "export-openapi": "ts-node --transpile-only scripts/export-openapi.ts",
+    "token": "ts-node --transpile-only scripts/generate-token.ts"
   },
   "repository": {
     "type": "git",
