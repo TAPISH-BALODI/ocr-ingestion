@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -18,6 +18,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
     return super.canActivate(context);
+  }
+
+  handleRequest(err: any, user: any, info: any) {
+    // You can throw an exception based on "info" or "err" arguments
+    if (err || !user) {
+      if (info) {
+        throw new UnauthorizedException(`Authentication failed: ${info.message || 'Invalid token'}`);
+      }
+      throw err || new UnauthorizedException('Authentication failed: No token provided');
+    }
+    return user;
   }
 }
 
