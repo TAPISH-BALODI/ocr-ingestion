@@ -4,11 +4,11 @@ A NestJS-based backend service demonstrating document management, OCR webhook in
 
 ## Timeline
 
-- **Start Date:** October 28, 2025
-- **Submit Date:** October 30, 2025
+- **Start Date:** October 27, 2025
+- **Finish Date:** Nov 1, 2025
 - **Duration:** 3 days
 
-## Quick Start
+## Setup and Run Instructions
 
 ### Prerequisites
 
@@ -16,26 +16,80 @@ A NestJS-based backend service demonstrating document management, OCR webhook in
 - Docker & Docker Compose (for containerized setup)
 - MongoDB (or use Docker Compose)
 
-### Using Docker Compose (Recommended)
+### Option 1: Using Docker Compose (Recommended)
 
 ```bash
 # Start MongoDB and API
 docker-compose up -d
 
+# Check status
+docker-compose ps
+
 # Seed demo data
 npm run seed
 
-# API available at http://localhost:3000
+# View logs
+docker-compose logs -f api
+
+# API available at http://localhost:3031
+# Swagger UI at http://localhost:3031/api
+
+# Stop services
+docker-compose down
+
+# Stop and remove volumes (clean slate)
+docker-compose down -v
 ```
 
-### Local Development
+### Option 2: Local Development (Without Docker)
+
+#### Step 1: Install MongoDB
+
+**Windows:**
+- Download MongoDB Community Server: https://www.mongodb.com/try/download/community
+- Or use Chocolatey: `choco install mongodb`
+
+**Alternative: Use MongoDB Atlas (Free Cloud)**
+1. Sign up at https://www.mongodb.com/cloud/atlas
+2. Create a free cluster
+3. Get connection string (looks like: `mongodb+srv://user:pass@cluster.mongodb.net/ocr_ingestion`)
+
+#### Step 2: Create `.env` File
+
+Create a `.env` file in the project root:
+
+```env
+MONGO_URI=mongodb://localhost:27017/ocr_ingestion
+# OR for MongoDB Atlas:
+# MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/ocr_ingestion?retryWrites=true&w=majority
+
+PORT=3031
+JWT_SECRET=dev-secret-key
+NODE_ENV=development
+```
+
+#### Step 3: Start MongoDB
+
+**Local MongoDB:**
+```bash
+# Windows (if installed as service, it auto-starts)
+# Or run manually:
+mongod --dbpath C:\data\db
+
+# macOS/Linux
+mongod --dbpath ./data/db
+```
+
+**MongoDB Atlas:** No setup needed, just ensure the connection string is correct.
+
+#### Step 4: Run Application
 
 ```bash
 # Install dependencies
 npm install
 
-# Start MongoDB locally (or use Docker)
-# mongod --dbpath ./data
+# Seed demo data
+npm run seed
 
 # Start development server
 npm run dev
@@ -48,32 +102,68 @@ npm run build
 npm start
 ```
 
-## Environment Variables
+### Troubleshooting
 
-Create a `.env` file (optional):
+#### MongoDB Connection Error
 
-```env
-MONGO_URI=mongodb://localhost:27017/ocr_ingestion
-JWT_SECRET=dev-secret-key
-PORT=3031
-NODE_ENV=development
+**Error:** `MongooseError: connect ECONNREFUSED`
+
+**Solution:**
+- Ensure MongoDB is running: `mongod --version`
+- Check connection string in `.env`
+- For local: Ensure MongoDB service is started
+- For Atlas: Check IP whitelist (allow all IPs: `0.0.0.0/0` for testing)
+
+#### Port Already in Use
+
+**Error:** `Port 3031 already in use`
+
+**Solution:**
+```bash
+# Windows PowerShell:
+netstat -ano | findstr :3031
+taskkill /PID <PID> /F
+
+# Or change port in .env
+PORT=3032
 ```
+
+#### Docker Issues
+
+**Error:** `Docker Desktop is not running`
+
+**Solution:**
+1. Open Docker Desktop application
+2. Wait for it to fully start (whale icon in system tray should be steady)
+3. Try `docker-compose up -d` again
+
+### Generating JWT Tokens
+
+You'll need JWT tokens for authenticated endpoints. Use the included script:
+
+```bash
+# Generate tokens for different users/roles
+ts-node scripts/generate-token.ts
+```
+
+Or use an online JWT tool (https://jwt.io) with:
+- Secret: `dev-secret-key`
+- Payload:
+  ```json
+  {
+    "sub": "user123",
+    "email": "user@example.com",
+    "role": "user"
+  }
+  ```
+
+---
 
 ## API Reference
 
 All endpoints are prefixed with `/v1`. Authentication is required via `Authorization: Bearer <jwt>` header.
 
 **Interactive API Documentation:** Visit `http://localhost:3031/api` for Swagger UI documentation.
-
-## Swagger/OpenAPI
-
-The API includes comprehensive Swagger documentation available at `/api` endpoint. You can:
-- View all endpoints with descriptions
-- Test endpoints directly from the browser
-- See request/response schemas
-- Authenticate using the "Authorize" button
-
-**Access:** `http://localhost:3031/api`
 
 ### Authentication
 
@@ -82,18 +172,10 @@ JWT tokens must include:
 - `email` - User email
 - `role` - One of: `admin`, `support`, `moderator`, `user`
 
-Example token generation:
-```javascript
-const jwt = require('jsonwebtoken');
-const token = jwt.sign(
-  { sub: 'user123', email: 'user@example.com', role: 'user' },
-  process.env.JWT_SECRET || 'dev-secret-key'
-);
-```
-
 ### Document & Tagging APIs
 
 #### POST /v1/docs
+
 Upload a document with primary and optional secondary tags.
 
 **Request:**
@@ -123,6 +205,7 @@ curl -X POST http://localhost:3031/v1/docs \
 ```
 
 #### GET /v1/folders
+
 List all primary-tag folders with document counts.
 
 **Request:**
@@ -140,6 +223,7 @@ curl http://localhost:3031/v1/folders \
 ```
 
 #### GET /v1/folders/:tag/docs
+
 List documents where the specified tag is primary.
 
 **Request:**
@@ -149,6 +233,7 @@ curl http://localhost:3031/v1/folders/invoices-2025/docs \
 ```
 
 #### GET /v1/search
+
 Full-text search across documents. Supports `scope` parameter:
 - `scope=folder&name=invoices-2025` - search within a folder
 - `scope=files&ids=id1,id2` - search specific files
@@ -174,6 +259,7 @@ curl "http://localhost:3031/v1/search?q=total&scope=files&ids=672abc123,672abc45
 ### Scoped Actions API
 
 #### POST /v1/actions/run
+
 Run actions (make_document, make_csv) on a scope of documents.
 
 **Request:**
@@ -207,6 +293,7 @@ curl -X POST http://localhost:3031/v1/actions/run \
 **Note:** Each request consumes 5 credits.
 
 #### GET /v1/actions/usage/month
+
 Get total credits consumed this month.
 
 **Request:**
@@ -225,6 +312,7 @@ curl http://localhost:3031/v1/actions/usage/month \
 ### OCR Webhook API
 
 #### POST /v1/webhooks/ocr
+
 Ingest OCR text, classify content, and create tasks for ads.
 
 **Request:**
@@ -256,6 +344,7 @@ curl -X POST http://localhost:3031/v1/webhooks/ocr \
 ### Metrics API
 
 #### GET /v1/metrics
+
 Get system metrics.
 
 **Request:**
@@ -274,20 +363,25 @@ curl http://localhost:3031/v1/metrics \
 }
 ```
 
-## RBAC & Security
+### Health Check
 
-### Roles
+#### GET /v1/health
 
-- **user**: CRUD on own docs/tags, run actions, view usage
-- **support** / **moderator**: Read-only access
-- **admin**: Full access
+Public endpoint (no authentication required) for health checks.
 
-### Tenant Isolation
+**Request:**
+```bash
+curl http://localhost:3031/v1/health
+```
 
-All endpoints enforce tenant isolation - users can only access their own data. This is enforced via:
-- JWT `sub` claim mapped to `ownerId` in all queries
-- `TenantScopeGuard` that sets `tenantUserId` on requests
-- Services filter by `ownerId` matching the authenticated user
+**Response:**
+```json
+{
+  "ok": true
+}
+```
+
+---
 
 ## Design Decisions & Tradeoffs
 
@@ -342,6 +436,75 @@ All endpoints enforce tenant isolation - users can only access their own data. T
 
 **Tradeoff:** Current approach doesn't scale for large files, but sufficient for assignment scope.
 
+### 7. Tenant Isolation
+
+**Decision:** All queries filtered by `ownerId` matching authenticated user's ID.
+
+**Rationale:** Security requirement - prevents data leaks in multi-tenant system. Enforced via guard that sets `tenantUserId` on all requests.
+
+**Tradeoff:** Requires careful attention to ensure all queries include ownerId filter. Could use MongoDB row-level security in production.
+
+### 8. JWT Authentication
+
+**Decision:** Stateless JWT tokens with standard claims (`sub`, `email`, `role`).
+
+**Rationale:** Simple, scalable, no session storage needed. In production, tokens would be issued by identity provider (Auth0, AWS Cognito, etc.).
+
+**Tradeoff:** Tokens can't be revoked without maintaining a blacklist. For production, consider short-lived tokens with refresh mechanism.
+
+---
+
+## What I'd Do Next (With More Time)
+
+1. **Enhanced Rate Limiting**
+   - Redis-based sliding window or token bucket
+   - Configurable limits per user role/plan
+   - Distributed rate limiting for multi-instance deployments
+
+2. **File Upload Support**
+   - Multipart form data handling
+   - S3/blob storage integration (AWS S3, Azure Blob, GCS)
+   - Image/PDF processing pipeline
+   - Virus scanning integration
+
+
+3. **Performance Optimizations**
+   - Query result caching (Redis)
+   - Pagination for large result sets (cursor-based or offset/limit)
+   - Database connection pooling tuning
+   - MongoDB read replicas for read-heavy workloads
+
+
+4. **Background Job Processing**
+   - Task processing queue (Bull, BullMQ)
+   - Async document processing
+   - Scheduled jobs for cleanup/maintenance
+
+5. **CI/CD Pipeline**
+   - GitHub Actions for tests and linting
+   - Docker image builds and pushes to registry
+   - Automated deployment to staging/production
+   - Automated security scanning
+
+---
+
+## Testing
+
+Run tests with:
+```bash
+npm test
+```
+
+Test coverage includes:
+- ✅ Scope rule validation (folder vs files)
+- ✅ Primary tag uniqueness constraint
+- ✅ RBAC role enforcement
+- ✅ Tenant isolation
+- ✅ Webhook classification and rate limiting
+- ✅ Credits tracking on actions
+
+---
+
 ## Database Schema
 
 ### Collections
@@ -359,83 +522,24 @@ All endpoints enforce tenant isolation - users can only access their own data. T
 - Unique: `users.email`, `tags(ownerId, name)`, `documenttags(documentId, ownerId, isPrimary=true)`
 - Performance: `documents(ownerId, createdAt)`, `tasks(ownerId, createdAt)`, `auditlogs(at)`
 
-## Testing
+---
 
-Run tests with:
-```bash
-npm test
-```
+## RBAC & Security
 
-Test coverage:
-- ✅ Scope rule validation (folder vs files)
-- ✅ Primary tag uniqueness constraint
-- ✅ RBAC role enforcement
-- ✅ Tenant isolation
-- ✅ Webhook classification and rate limiting
-- ✅ Credits tracking on actions
+### Roles
 
-## What I'd Do Next (With More Time)
+- **user**: CRUD on own docs/tags, run actions, view usage
+- **support** / **moderator**: Read-only access
+- **admin**: Full access
 
-1. **OpenAPI/Swagger Documentation**
-   - Generate interactive API docs from decorators
-   - Export Postman/Bruno collection automatically
+### Tenant Isolation
 
-2. **Enhanced Rate Limiting**
-   - Redis-based sliding window or token bucket
-   - Configurable limits per user role/plan
+All endpoints enforce tenant isolation - users can only access their own data. This is enforced via:
+- JWT `sub` claim mapped to `ownerId` in all queries
+- `TenantScopeGuard` that sets `tenantUserId` on requests
+- Services filter by `ownerId` matching the authenticated user
 
-3. **File Upload Support**
-   - Multipart form data handling
-   - S3/blob storage integration
-   - Image/PDF processing pipeline
-
-4. **LLM Integration**
-   - Replace mock processor with actual OpenAI/Anthropic API calls
-   - Streaming responses for long-running actions
-   - Error handling and retries
-
-5. **Performance Optimizations**
-   - Query result caching (Redis)
-   - Pagination for large result sets
-   - Database connection pooling tuning
-
-6. **CI/CD Pipeline**
-   - GitHub Actions for tests and linting
-   - Docker image builds and pushes
-   - Automated deployment
-
-7. **Monitoring & Observability**
-   - Prometheus metrics export
-   - Structured logging (Winston/Pino)
-   - Distributed tracing (OpenTelemetry)
-
-8. **Additional Tests**
-   - Integration tests for full request flows
-   - Load/performance tests
-   - Contract tests for API compatibility
-
-9. **Document Versioning**
-   - Track document history/changes
-   - Soft deletes instead of hard deletes
-
-10. **Advanced Search**
-    - Full-text search index (MongoDB Atlas Search or Elasticsearch)
-    - Fuzzy matching and relevance scoring
-
-## Project Structure
-
-```
-src/
-├── auth/              # JWT strategy, RBAC guards, decorators
-├── documents/         # Document CRUD, tagging logic
-├── actions/           # Scoped actions and usage tracking
-├── webhooks/          # OCR webhook ingestion
-├── tasks/             # Task schema
-├── metrics/           # Metrics aggregation
-├── audit/             # Audit logging service
-├── health/            # Health check endpoint
-└── common/            # Shared guards and utilities
-```
+---
 
 ## Scripts
 
@@ -445,6 +549,9 @@ src/
 - `npm test` - Run Jest tests
 - `npm run lint` - Run ESLint
 - `npm run seed` - Populate database with demo data
+- `npm run export-openapi` - Export OpenAPI spec to `openapi.json`
+
+---
 
 ## License
 

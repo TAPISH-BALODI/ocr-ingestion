@@ -23,6 +23,7 @@ const document_tag_schema_1 = require("../documents/document-tag.schema");
 const usage_schema_1 = require("../actions/usage.schema");
 const task_schema_1 = require("../tasks/task.schema");
 const decorators_1 = require("../auth/decorators");
+const metrics_response_dto_1 = require("./dto/metrics-response.dto");
 let MetricsController = class MetricsController {
     constructor(docModel, tagModel, docTagModel, usageModel, taskModel) {
         this.docModel = docModel;
@@ -53,6 +54,22 @@ let MetricsController = class MetricsController {
 exports.MetricsController = MetricsController;
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get system metrics',
+        description: 'Returns aggregated statistics: total documents, folders, actions this month, and tasks created today.'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Metrics retrieved successfully',
+        type: metrics_response_dto_1.MetricsResponseDto,
+        example: {
+            docs_total: 123,
+            folders_total: 7,
+            actions_month: 42,
+            tasks_today: 5
+        }
+    }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, decorators_1.TenantUserId)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

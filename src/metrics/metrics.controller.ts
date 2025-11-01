@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Document as Doc } from '../documents/document.schema';
@@ -8,6 +8,7 @@ import { DocumentTag } from '../documents/document-tag.schema';
 import { Usage } from '../actions/usage.schema';
 import { Task } from '../tasks/task.schema';
 import { TenantUserId } from '../auth/decorators';
+import { MetricsResponseDto } from './dto/metrics-response.dto';
 
 @ApiTags('Metrics')
 @ApiBearerAuth()
@@ -22,6 +23,22 @@ export class MetricsController {
   ) {}
 
   @Get()
+  @ApiOperation({ 
+    summary: 'Get system metrics',
+    description: 'Returns aggregated statistics: total documents, folders, actions this month, and tasks created today.'
+  })
+  @ApiResponse({ 
+    status: 200,
+    description: 'Metrics retrieved successfully',
+    type: MetricsResponseDto,
+    example: {
+      docs_total: 123,
+      folders_total: 7,
+      actions_month: 42,
+      tasks_today: 5
+    }
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async get(@TenantUserId() tenantUserId: string) {
     const owner = new Types.ObjectId(tenantUserId);
     const [docs_total, folders_total] = await Promise.all([

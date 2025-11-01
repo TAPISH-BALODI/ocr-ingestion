@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, BadRequestException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Document as Doc } from '../documents/document.schema';
@@ -8,6 +8,8 @@ import { Tag } from '../tags/tag.schema';
 import { Usage } from './usage.schema';
 import { TenantUserId } from '../auth/decorators';
 import { AuditService } from '../audit/audit.service';
+import { RunActionDto } from './dto/run-action.dto';
+import { RunActionResponseDto, UsageResponseDto } from './dto/action-response.dto';
 
 type Scope = { type: 'folder'; name: string } | { type: 'files'; ids: string[] };
 
@@ -45,9 +47,28 @@ export class ActionsController {
   }
 
   @Post('run')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ 
+    summary: 'Run scoped actions on documents',
+    description: 'Process documents in a folder or specific files and generate new documents or CSVs. Consumes 5 credits per request.'
+  })
+  @ApiResponse({ 
+    status: 201,
+    description: 'Actions completed successfully',
+    type: RunActionResponseDto,
+    example: {
+      created: [
+        { id: '672abc789', filename: 'generated.txt' },
+        { id: '672abc790', filename: 'generated.csv' }
+      ],
+      credits: 5
+    }
+  })
+  @ApiResponse({ status: 400, description: 'Bad request - validation failed' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async run(
     @TenantUserId() tenantUserId: string,
-    @Body() body: { scope: Scope; messages: { role: string; content: string }[]; actions: ('make_document'|'make_csv')[] },
+    @Body() body: RunActionDto,
   ) {
     // Rule: scope must be either folder OR files, not both (enforced by TypeScript union type)
     if (!body.scope || !body.actions?.length) {
@@ -75,6 +96,19 @@ export class ActionsController {
   }
 
   @Get('usage/month')
+  @ApiOperation({ 
+    summary: 'Get usage statistics for current month',
+    description: 'Returns total credits consumed this month.'
+  })
+  @ApiResponse({ 
+    status: 200,
+    description: 'Monthly usage statistics',
+    type: UsageResponseDto,
+    example: {
+      credits: 25
+    }
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async usageMonth(@TenantUserId() tenantUserId: string) {
     const userId = new Types.ObjectId(tenantUserId);
     const now = new Date();

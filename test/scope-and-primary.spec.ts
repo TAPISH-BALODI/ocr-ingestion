@@ -1,8 +1,13 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import jwt from 'jsonwebtoken';
+import * as request from 'supertest';
+import * as jwt from 'jsonwebtoken';
+import { Types } from 'mongoose';
+
+function objectId(): string {
+  return new Types.ObjectId().toString();
+}
 
 function token(sub: string, role: string = 'user') {
   return jwt.sign({ sub, email: sub + '@ex.com', role }, process.env.JWT_SECRET || 'dev-secret-key');
@@ -22,7 +27,7 @@ describe('Scope rule and primary tag uniqueness (e2e-ish)', () => {
   });
 
   it('enforces folder vs files scope rule', async () => {
-    const t = token('u1');
+    const t = token(objectId());
     const res = await request(app.getHttpServer())
       .post('/v1/actions/run')
       .set('Authorization', `Bearer ${t}`)
@@ -33,7 +38,7 @@ describe('Scope rule and primary tag uniqueness (e2e-ish)', () => {
   });
 
   it('ensures exactly one primary tag per document', async () => {
-    const t = token('u2');
+    const t = token(objectId());
     const upload = await request(app.getHttpServer())
       .post('/v1/docs')
       .set('Authorization', `Bearer ${t}`)

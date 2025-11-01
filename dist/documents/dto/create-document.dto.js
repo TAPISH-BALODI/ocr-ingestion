@@ -16,28 +16,48 @@ class CreateDocumentDto {
 }
 exports.CreateDocumentDto = CreateDocumentDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Document filename' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Document filename',
+        example: 'invoice-001.pdf'
+    }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateDocumentDto.prototype, "filename", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'MIME type' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'MIME type',
+        example: 'application/pdf',
+        examples: ['application/pdf', 'text/plain', 'image/png', 'application/msword']
+    }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateDocumentDto.prototype, "mime", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Text content of the document', required: false }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Text content of the document (extracted from OCR or file)',
+        required: false,
+        example: 'Invoice total $1200. Payment due by December 31, 2025.'
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateDocumentDto.prototype, "textContent", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Primary tag name (required)' }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Primary tag name (required). This becomes the folder name.',
+        example: 'invoices-2025'
+    }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateDocumentDto.prototype, "primaryTag", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Secondary tag names', type: [String], required: false }),
+    (0, swagger_1.ApiProperty)({
+        description: 'Secondary tag names (optional)',
+        type: [String],
+        required: false,
+        example: ['financial', 'urgent', 'pending'],
+        default: []
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),

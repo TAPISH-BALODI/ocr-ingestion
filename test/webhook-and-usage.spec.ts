@@ -1,8 +1,14 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import jwt from 'jsonwebtoken';
+import * as request from 'supertest';
+import * as jwt from 'jsonwebtoken';
+import { Types } from 'mongoose';
+
+
+function objectId(): string {
+  return new Types.ObjectId().toString();
+}
 
 function token(sub: string, role: string = 'user') {
   return jwt.sign({ sub, email: sub + '@ex.com', role }, process.env.JWT_SECRET || 'dev-secret-key');
@@ -10,7 +16,7 @@ function token(sub: string, role: string = 'user') {
 
 describe('Webhook classification/rate-limit and credits tracking', () => {
   let app: INestApplication;
-  const t = token('u3');
+  const t = token(objectId());
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();

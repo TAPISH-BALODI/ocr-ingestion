@@ -1,10 +1,16 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import jwt from 'jsonwebtoken';
+import * as request from 'supertest';
+import * as jwt from 'jsonwebtoken';
+import { Types } from 'mongoose';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
+
+
+function objectId(): string {
+  return new Types.ObjectId().toString();
+}
 
 function createToken(userId: string, role: 'admin' | 'support' | 'moderator' | 'user' = 'user') {
   return jwt.sign({ sub: userId, email: `${userId}@example.com`, role }, JWT_SECRET);
@@ -24,7 +30,7 @@ describe('RBAC and Tenant Isolation', () => {
   });
 
   it('allows user role to access own documents', async () => {
-    const token = createToken('user1', 'user');
+    const token = createToken(objectId(), 'user');
     const res = await request(app.getHttpServer())
       .get('/v1/folders')
       .set('Authorization', `Bearer ${token}`);
@@ -32,7 +38,7 @@ describe('RBAC and Tenant Isolation', () => {
   });
 
   it('allows support/moderator read-only access', async () => {
-    const token = createToken('support1', 'support');
+    const token = createToken(objectId(), 'support');
     const res = await request(app.getHttpServer())
       .get('/v1/folders')
       .set('Authorization', `Bearer ${token}`);
@@ -40,8 +46,10 @@ describe('RBAC and Tenant Isolation', () => {
   });
 
   it('enforces tenant isolation - users cannot access other users data', async () => {
-    const user1Token = createToken('user1', 'user');
-    const user2Token = createToken('user2', 'user');
+    const user1Id = objectId();
+    const user2Id = objectId();
+    const user1Token = createToken(user1Id, 'user');
+    const user2Token = createToken(user2Id, 'user');
 
     // User1 creates a document
     const upload = await request(app.getHttpServer())

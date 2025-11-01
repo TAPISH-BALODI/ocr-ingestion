@@ -23,6 +23,8 @@ const tag_schema_1 = require("../tags/tag.schema");
 const usage_schema_1 = require("./usage.schema");
 const decorators_1 = require("../auth/decorators");
 const audit_service_1 = require("../audit/audit.service");
+const run_action_dto_1 = require("./dto/run-action.dto");
+const action_response_dto_1 = require("./dto/action-response.dto");
 let ActionsController = class ActionsController {
     constructor(docModel, docTagModel, tagModel, usageModel, audit) {
         this.docModel = docModel;
@@ -85,14 +87,45 @@ let ActionsController = class ActionsController {
 exports.ActionsController = ActionsController;
 __decorate([
     (0, common_1.Post)('run'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Run scoped actions on documents',
+        description: 'Process documents in a folder or specific files and generate new documents or CSVs. Consumes 5 credits per request.'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Actions completed successfully',
+        type: action_response_dto_1.RunActionResponseDto,
+        example: {
+            created: [
+                { id: '672abc789', filename: 'generated.txt' },
+                { id: '672abc790', filename: 'generated.csv' }
+            ],
+            credits: 5
+        }
+    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - validation failed' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, decorators_1.TenantUserId)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, run_action_dto_1.RunActionDto]),
     __metadata("design:returntype", Promise)
 ], ActionsController.prototype, "run", null);
 __decorate([
     (0, common_1.Get)('usage/month'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Get usage statistics for current month',
+        description: 'Returns total credits consumed this month.'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Monthly usage statistics',
+        type: action_response_dto_1.UsageResponseDto,
+        example: {
+            credits: 25
+        }
+    }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, decorators_1.TenantUserId)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

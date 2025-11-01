@@ -20,6 +20,7 @@ const mongoose_2 = require("mongoose");
 const task_schema_1 = require("../tasks/task.schema");
 const audit_service_1 = require("../audit/audit.service");
 const decorators_1 = require("../auth/decorators");
+const ocr_webhook_dto_1 = require("./dto/ocr-webhook.dto");
 function classify(text) {
     const t = (text || '').toLowerCase();
     if (/(invoice|payment|legal|contract|tax)/.test(t))
@@ -68,10 +69,25 @@ let OcrController = class OcrController {
 exports.OcrController = OcrController;
 __decorate([
     (0, common_1.Post)('ocr'),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Ingest OCR webhook event',
+        description: 'Receives OCR text, classifies content (official/ad/other), and creates tasks for ads with rate limiting (max 3 tasks per sender per day).'
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Webhook processed successfully',
+        type: ocr_webhook_dto_1.OcrWebhookResponseDto,
+        example: {
+            ok: true,
+            category: 'ad'
+        }
+    }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request - validation failed' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, decorators_1.TenantUserId)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, ocr_webhook_dto_1.OcrWebhookDto]),
     __metadata("design:returntype", Promise)
 ], OcrController.prototype, "handle", null);
 exports.OcrController = OcrController = __decorate([

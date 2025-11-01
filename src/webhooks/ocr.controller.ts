@@ -1,10 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Task } from '../tasks/task.schema';
 import { AuditService } from '../audit/audit.service';
 import { TenantUserId } from '../auth/decorators';
+import { OcrWebhookDto, OcrWebhookResponseDto } from './dto/ocr-webhook.dto';
 
 function classify(text: string): 'official' | 'ad' | 'other' {
   const t = (text || '').toLowerCase();
@@ -31,9 +32,25 @@ export class OcrController {
   ) {}
 
   @Post('ocr')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ 
+    summary: 'Ingest OCR webhook event',
+    description: 'Receives OCR text, classifies content (official/ad/other), and creates tasks for ads with rate limiting (max 3 tasks per sender per day).'
+  })
+  @ApiResponse({ 
+    status: 201,
+    description: 'Webhook processed successfully',
+    type: OcrWebhookResponseDto,
+    example: {
+      ok: true,
+      category: 'ad'
+    }
+  })
+  @ApiResponse({ status: 400, description: 'Bad request - validation failed' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async handle(
     @TenantUserId() tenantUserId: string,
-    @Body() payload: { source: string; imageId: string; text: string; meta?: Record<string, any> }
+    @Body() payload: OcrWebhookDto
   ) {
     const userId = new Types.ObjectId(tenantUserId);
     const category = classify(payload.text || '');
