@@ -52,7 +52,7 @@ docker-compose down -v
 **Alternative: Use MongoDB Atlas (Free Cloud)**
 1. Sign up at https://www.mongodb.com/cloud/atlas
 2. Create a free cluster
-3. Get connection string (looks like: `mongodb+srv://user:pass@cluster.mongodb.net/ocr_ingestion`)
+3. Get connection string 
 
 #### Step 2: Create `.env` File
 
